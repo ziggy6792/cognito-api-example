@@ -1,6 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
 import { CognitoToApiGatewayToLambda } from '@aws-solutions-constructs/aws-cognito-apigateway-lambda';
+import addCorsOptions from './add-cors-options';
 
 export class CognitoApiExampleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -28,6 +29,7 @@ export class CognitoApiExampleStack extends cdk.Stack {
     const resource = construct.apiGateway.root.addResource('hello');
     resource.addMethod('GET');
     resource.addMethod('POST');
+    addCorsOptions(resource);
 
     // Mandatory to call this method to Apply the Cognito Authorizers on all API methods
     construct.addAuthorizers();
