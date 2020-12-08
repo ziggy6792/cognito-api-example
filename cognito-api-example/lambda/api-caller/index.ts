@@ -1,9 +1,6 @@
 import AWS = require('aws-sdk');
 import { v4 as uuid } from 'uuid';
 
-const tableName = process.env.TABLE_NAME || '';
-const dynamo = new AWS.DynamoDB.DocumentClient();
-
 // const createResponse = (body: string | AWS.DynamoDB.DocumentClient.ItemList, statusCode = 200) => {
 //   return {
 //     statusCode: 200,
