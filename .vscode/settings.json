@@ -1,7 +1,7 @@
 {
   "files.exclude": {
-    "**/*.js": true,
-    "**/*.js.map": true,
-    "**/*.d.ts": true
+    "cognito-api-example**/*.js": true,
+    "cognito-api-example/**/*.js.map": true,
+    "cognito-api-example/**/*.d.ts": true
   }
 }
