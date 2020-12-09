@@ -22,11 +22,18 @@ export class CognitoApiExampleStack extends cdk.Stack {
       },
       apiGatewayProps: {
         proxy: false,
+        defaultCorsPreflightOptions: {
+          allowOrigins: ['*'],
+          allowHeaders: ['*'],
+          allowMethods: ['*'],
+        },
       },
     });
 
     const apiCallerHandler = new lambda.Function(this, generateConstructId('api-caller'), {
       code: lambda.Code.fromAsset('lambda/api-caller'),
+      functionName: generateConstructId('api-caller'),
+
       handler: 'index.handler',
       runtime: lambda.Runtime.NODEJS_12_X,
     });
@@ -48,13 +55,13 @@ export class CognitoApiExampleStack extends cdk.Stack {
     const externalProxy = external.addProxy();
     externalProxy.addMethod('GET');
     externalProxy.addMethod('POST');
-    addCorsOptions(externalProxy);
+    // addCorsOptions(externalProxy);
 
     const internal = construct.apiGateway.root.addResource('internal');
     const internaProxy = internal.addProxy();
     internaProxy.addMethod('GET');
     internaProxy.addMethod('POST');
-    addCorsOptions(internaProxy);
+    // addCorsOptions(internaProxy);
 
     // construct.apiGateway.
 
