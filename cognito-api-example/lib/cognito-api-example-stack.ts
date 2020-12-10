@@ -58,9 +58,14 @@ export class CognitoApiExampleStack extends cdk.Stack {
     // addCorsOptions(externalProxy);
 
     const internal = construct.apiGateway.root.addResource('internal');
-    const internaProxy = internal.addProxy();
-    internaProxy.addMethod('GET');
-    internaProxy.addMethod('POST');
+    const internalProxy = internal.addProxy();
+    internalProxy.addMethod('GET');
+    internalProxy.addMethod('POST');
+
+    const unprotected = construct.apiGateway.root.addResource('unprotected');
+    const unprotectedProxy = unprotected.addProxy();
+    unprotectedProxy.addMethod('GET');
+    unprotectedProxy.addMethod('POST');
     // addCorsOptions(internaProxy);
 
     // construct.apiGateway.
