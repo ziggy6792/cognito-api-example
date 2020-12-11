@@ -89,13 +89,13 @@ export class CognitoToApiGatewayToLambda extends Construct {
     if (props.apiGatewayProps) {
       if (props.apiGatewayProps.defaultMethodOptions === undefined) {
         props.apiGatewayProps.defaultMethodOptions = {
-          authorizationType: api.AuthorizationType.COGNITO,
+          authorizationType: api.AuthorizationType.NONE,
         };
       } else if (props.apiGatewayProps?.defaultMethodOptions.authorizationType === undefined) {
-        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.COGNITO;
-      } else if (props.apiGatewayProps?.defaultMethodOptions.authorizationType !== 'COGNITO_USER_POOLS') {
-        defaults.printWarning('Overriding Authorization type to be AuthorizationType.COGNITO');
-        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.COGNITO;
+        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.NONE;
+      } else if (props.apiGatewayProps?.defaultMethodOptions.authorizationType !== api.AuthorizationType.NONE) {
+        defaults.printWarning('Overriding Authorization type to be AuthorizationType.NONE');
+        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.NONE;
       }
     }
 
@@ -146,15 +146,48 @@ export class CognitoToApiGatewayToLambda extends Construct {
   //   unprotectedProxy.addMethod('POST');
   // }
 
+  // public addAuthorizers() {
+  //   this.apiGateway.methods.forEach((apiMethod) => {
+  //     // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
+  //     const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
+  //     if (apiMethod.httpMethod === 'OPTIONS') {
+  //       child.addPropertyOverride('AuthorizationType', 'NONE');
+  //     } else {
+  //       child.addPropertyOverride('AuthorizationType', 'COGNITO_USER_POOLS');
+  //       child.addPropertyOverride('AuthorizerId', { Ref: this.apiGatewayAuthorizer.logicalId });
+  //     }
+  //   });
+  // }
+
+  // public addAuthorizers() {
+  //   this.apiGateway.methods.forEach((apiMethod) => {
+  //     // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
+  //     if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
+  //       defaults.printWarning('add cognito ' + apiMethod.resource.path);
+
+  //       // this.addCognitoAuthorizer(apiMethod);
+  //       this.addNoAuthorizer(apiMethod);
+  //     } else {
+  //       // this.addNoAuthorizer(apiMethod);
+  //       this.addNoAuthorizer(apiMethod);
+  //     }
+  //   });
+  // }
+
   public addAuthorizers() {
     this.apiGateway.methods.forEach((apiMethod) => {
       // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
       const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
+      // if (apiMethod.httpMethod === 'OPTIONS') {
+      //   child.addPropertyOverride('AuthorizationType', 'NONE');
+      // } else {
+      //   child.addPropertyOverride('AuthorizationType', 'NONE');
+      // }
+      // this.addNoAuthorizer(apiMethod);
+      child.addPropertyOverride('AuthorizationType', 'NONE');
       if (apiMethod.httpMethod === 'OPTIONS') {
         child.addPropertyOverride('AuthorizationType', 'NONE');
-      } else {
-        child.addPropertyOverride('AuthorizationType', 'COGNITO_USER_POOLS');
-        child.addPropertyOverride('AuthorizerId', { Ref: this.apiGatewayAuthorizer.logicalId });
+      } else if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
       }
     });
   }
@@ -182,6 +215,12 @@ export class CognitoToApiGatewayToLambda extends Construct {
       child.addPropertyOverride('AuthorizationType', 'COGNITO_USER_POOLS');
       child.addPropertyOverride('AuthorizerId', { Ref: this.apiGatewayAuthorizer.logicalId });
     }
+  }
+
+  private addNoAuthorizer(apiMethod: api.Method) {
+    // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
+    const child = apiMethod.resource.node.findChild('Resource') as api.CfnMethod;
+    child.addPropertyOverride('AuthorizationType', 'NONE');
   }
 
   private addIamAuthorizer(apiMethod: api.Method) {
