@@ -124,71 +124,10 @@ export class CognitoToApiGatewayToLambda extends Construct {
     this.externalResource = this.apiGateway.root.addResource(RESOURCE_TYPE.EXTERNAL);
     this.internalResource = this.apiGateway.root.addResource(RESOURCE_TYPE.INERNAL);
     this.unprotectedResource = this.apiGateway.root.addResource(RESOURCE_TYPE.UNPROTECTED);
-
-    // this.addMethods();
   }
-
-  // private addMethods() {
-  //   const external = this.apiGateway.root.addResource('external');
-  //   const externalProxy = external.addProxy();
-  //   const externalMethhos = [externalProxy.addMethod('GET'), externalProxy.addMethod('POST')];
-
-  //   this.addCognitoAuthorizer(externalMethhos);
-
-  //   const internal = this.apiGateway.root.addResource('internal');
-  //   const internalProxy = internal.addProxy();
-  //   internalProxy.addMethod('GET');
-  //   internalProxy.addMethod('POST');
-
-  //   const unprotected = this.apiGateway.root.addResource('unprotected');
-  //   const unprotectedProxy = unprotected.addProxy();
-  //   unprotectedProxy.addMethod('GET');
-  //   unprotectedProxy.addMethod('POST');
-  // }
-
-  // public addAuthorizers() {
-  //   this.apiGateway.methods.forEach((apiMethod) => {
-  //     // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
-  //     const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
-  //     if (apiMethod.httpMethod === 'OPTIONS') {
-  //       child.addPropertyOverride('AuthorizationType', 'NONE');
-  //     } else {
-  //       child.addPropertyOverride('AuthorizationType', 'COGNITO_USER_POOLS');
-  //       child.addPropertyOverride('AuthorizerId', { Ref: this.apiGatewayAuthorizer.logicalId });
-  //     }
-  //   });
-  // }
-
-  // public addAuthorizers() {
-  //   this.apiGateway.methods.forEach((apiMethod) => {
-  //     // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
-  //     if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
-  //       defaults.printWarning('add cognito ' + apiMethod.resource.path);
-
-  //       // this.addCognitoAuthorizer(apiMethod);
-  //       this.addNoAuthorizer(apiMethod);
-  //     } else {
-  //       // this.addNoAuthorizer(apiMethod);
-  //       this.addNoAuthorizer(apiMethod);
-  //     }
-  //   });
-  // }
 
   public addAuthorizers() {
     this.apiGateway.methods.forEach((apiMethod) => {
-      // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
-      // if (apiMethod.httpMethod === 'OPTIONS') {
-      //   child.addPropertyOverride('AuthorizationType', 'NONE');
-      // } else {
-      //   child.addPropertyOverride('AuthorizationType', 'NONE');
-      // }
-      // this.addNoAuthorizer(apiMethod);
-
-      // const fun = (apiMethod: api.Method) => {
-      //   const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
-      //   child.addPropertyOverride('AuthorizationType', 'NONE');
-      // };
-
       if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
         this.addCognitoAuthorizer(apiMethod);
       } else if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.INERNAL}`)) {
