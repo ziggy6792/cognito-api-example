@@ -19,7 +19,7 @@ axios.interceptors.request.use(interceptor);
 
 exports.handler = async function (event: AWSLambda.APIGatewayEvent) {
   try {
-    const response = await axios.get('http://4rjawoou71.execute-api.ap-southeast-1.amazonaws.com/prod/internal/hello');
+    const response = await axios.get('https://paa3brg4jk.execute-api.ap-southeast-1.amazonaws.com/dev/internal/hello');
     console.log('response', response.data);
   } catch (err) {
     console.log({ err });

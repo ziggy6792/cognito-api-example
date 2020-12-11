@@ -14,6 +14,8 @@ import { v4 as uuid } from 'uuid';
 exports.handler = async function (event: AWSLambda.APIGatewayEvent) {
   const { httpMethod, body: requestBody } = event;
 
+  console.log('Recieved', JSON.stringify(event));
+
   return {
     statusCode: 200,
     headers: {
