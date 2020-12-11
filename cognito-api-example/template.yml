@@ -1154,15 +1154,35 @@ Resources:
     Properties:
       AccountRecoverySetting:
         RecoveryMechanisms:
-          - Name: verified_phone_number
-            Priority: 1
           - Name: verified_email
-            Priority: 2
+            Priority: 1
       AdminCreateUserConfig:
-        AllowAdminCreateUserOnly: true
+        AllowAdminCreateUserOnly: false
+      AutoVerifiedAttributes:
+        - email
       EmailVerificationMessage: The verification code to your new account is {####}
       EmailVerificationSubject: Verify your new account
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+          TemporaryPasswordValidityDays: 2
+      Schema:
+        - Mutable: false
+          Name: email
+          Required: true
+        - AttributeDataType: String
+          Mutable: true
+          Name: signUpAttributes
+          StringAttributeConstraints:
+            MaxLength: "2048"
+            MinLength: "1"
       SmsVerificationMessage: The verification code to your new account is {####}
+      UsernameAttributes:
+        - email
       UserPoolAddOns:
         AdvancedSecurityMode: ENFORCED
       UserPoolName: CognitoApiExampleStack2-user-pool
@@ -1173,6 +1193,30 @@ Resources:
         SmsMessage: The verification code to your new account is {####}
     Metadata:
       aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/CognitoUserPool/Resource
+  CognitoApiExampleStack2apiCognitoUserPoolstackoverflowuserpoollocalhostclient9ADC7A94:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: CognitoApiExampleStack2apiCognitoUserPoolDA916FC2
+      AllowedOAuthFlows:
+        - implicit
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - openid
+        - email
+        - phone
+        - aws.cognito.signin.user.admin
+      CallbackURLs:
+        - http://localhost:3000/
+      ClientName: stackoverflow-localhost-client
+      LogoutURLs:
+        - http://localhost:3000/
+      SupportedIdentityProviders:
+        - LoginWithAmazon
+        - COGNITO
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/CognitoUserPool/stackoverflow-userpool-localhost-client/Resource
   CognitoApiExampleStack2apiCognitoUserPoolClient9DCFA56F:
     Type: AWS::Cognito::UserPoolClient
     Properties:
