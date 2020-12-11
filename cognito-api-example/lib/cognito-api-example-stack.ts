@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
 import MultiAuthApiGatewayLambda from '../constructs/multi-auth-apigateway-lambda';
 import * as iam from '@aws-cdk/aws-iam';
+import * as cognito from '@aws-cdk/aws-cognito';
 
 export class CognitoApiExampleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -32,6 +33,31 @@ export class CognitoApiExampleStack extends cdk.Stack {
       },
       cognitoUserPoolProps: {
         userPoolName: generateConstructId('user-pool'),
+        selfSignUpEnabled: true,
+        signInAliases: {
+          email: true,
+        },
+        autoVerify: {
+          email: true,
+        },
+        standardAttributes: {
+          email: {
+            required: true,
+            mutable: false,
+          },
+        },
+        customAttributes: {
+          signUpAttributes: new cognito.StringAttribute({ minLen: 1, maxLen: 2048, mutable: true }),
+        },
+        passwordPolicy: {
+          tempPasswordValidity: cdk.Duration.days(2),
+          minLength: 6,
+          requireDigits: false,
+          requireLowercase: false,
+          requireUppercase: false,
+          requireSymbols: false,
+        },
+        accountRecovery: cognito.AccountRecovery.EMAIL_ONLY,
       },
     });
 
