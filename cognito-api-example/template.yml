@@ -1,0 +1,1366 @@
+Resources:
+  CognitoApiExampleStack2apiLambdaFunctionServiceRole59CAF14B:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Effect: Allow
+                Resource:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":logs:"
+                      - Ref: AWS::Region
+                      - ":"
+                      - Ref: AWS::AccountId
+                      - :log-group:/aws/lambda/*
+            Version: "2012-10-17"
+          PolicyName: LambdaFunctionServiceRolePolicy
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaFunctionServiceRole/Resource
+  CognitoApiExampleStack2apiLambdaFunctionServiceRoleDefaultPolicyCDC43B55:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyDocument:
+        Statement:
+          - Action:
+              - xray:PutTraceSegments
+              - xray:PutTelemetryRecords
+            Effect: Allow
+            Resource: "*"
+        Version: "2012-10-17"
+      PolicyName: CognitoApiExampleStack2apiLambdaFunctionServiceRoleDefaultPolicyCDC43B55
+      Roles:
+        - Ref: CognitoApiExampleStack2apiLambdaFunctionServiceRole59CAF14B
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W12
+            reason: Lambda needs the following minimum required permissions to send trace data to X-Ray and access ENIs in a VPC.
+  CognitoApiExampleStack2apiLambdaFunction2BE62E27:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fS3Bucket6A1C6049
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fS3VersionKeyBE65CC71
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fS3VersionKeyBE65CC71
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunctionServiceRole59CAF14B
+          - Arn
+      Runtime: nodejs12.x
+      Description: CognitoApiExampleStack2-api-resolver
+      Environment:
+        Variables:
+          AWS_NODEJS_CONNECTION_REUSE_ENABLED: "1"
+      FunctionName: CognitoApiExampleStack2-api-resolver
+      TracingConfig:
+        Mode: Active
+    DependsOn:
+      - CognitoApiExampleStack2apiLambdaFunctionServiceRoleDefaultPolicyCDC43B55
+      - CognitoApiExampleStack2apiLambdaFunctionServiceRole59CAF14B
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W58
+            reason: Lambda functions has the required permission to write CloudWatch Logs. It uses custom policy instead of arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole with more tighter permissions.
+  CognitoApiExampleStack2apiApiAccessLogGroupB0E8E58B:
+    Type: AWS::Logs::LogGroup
+    UpdateReplacePolicy: Retain
+    DeletionPolicy: Retain
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/ApiAccessLogGroup/Resource
+  CognitoApiExampleStack2apiLambdaRestApi3E0E7B94:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Description: CognitoApiExampleStack2-api
+      EndpointConfiguration:
+        Types:
+          - EDGE
+      Name: CognitoApiExampleStack2-api
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Resource
+  CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD194b6fa69db3ae6c96dc961993cce9fe0b:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      Description: Automatically created by the RestApi construct
+    DependsOn:
+      - CognitoApiExampleStack2apiLambdaRestApiexternalproxyANY4888929D
+      - CognitoApiExampleStack2apiLambdaRestApiexternalproxyGETA3EB8EAF
+      - CognitoApiExampleStack2apiLambdaRestApiexternalproxyOPTIONS7326C8C9
+      - CognitoApiExampleStack2apiLambdaRestApiexternalproxyPOST5D24D09B
+      - CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70
+      - CognitoApiExampleStack2apiLambdaRestApiexternalOPTIONS5D996F68
+      - CognitoApiExampleStack2apiLambdaRestApiexternalE79B951D
+      - CognitoApiExampleStack2apiLambdaRestApiinternalproxyANY0180CB64
+      - CognitoApiExampleStack2apiLambdaRestApiinternalproxyGET76C9403F
+      - CognitoApiExampleStack2apiLambdaRestApiinternalproxyOPTIONS68680FC3
+      - CognitoApiExampleStack2apiLambdaRestApiinternalproxyPOST328756CF
+      - CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
+      - CognitoApiExampleStack2apiLambdaRestApiinternalOPTIONSA3EC68EA
+      - CognitoApiExampleStack2apiLambdaRestApiinternal1D86EF1B
+      - CognitoApiExampleStack2apiLambdaRestApiOPTIONS9E6A0C91
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyANY08CB11DF
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyGET800E9B2D
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyOPTIONS284D4A3C
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyPOSTCD310A21
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedOPTIONSC38A14AC
+      - CognitoApiExampleStack2apiLambdaRestApiunprotetectedAE531C1A
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: W45
+            reason: ApiGateway has AccessLogging enabled in AWS::ApiGateway::Stage resource, but cfn_nag checkes for it in AWS::ApiGateway::Deployment resource
+  CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AccessLogSetting:
+        DestinationArn:
+          Fn::GetAtt:
+            - CognitoApiExampleStack2apiApiAccessLogGroupB0E8E58B
+            - Arn
+        Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
+      DeploymentId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD194b6fa69db3ae6c96dc961993cce9fe0b
+      MethodSettings:
+        - DataTraceEnabled: true
+          HttpMethod: "*"
+          LoggingLevel: INFO
+          ResourcePath: /*
+      StageName: dev
+      TracingEnabled: true
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/DeploymentStage.dev/Resource
+  CognitoApiExampleStack2apiLambdaRestApiOPTIONS9E6A0C91:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          - RootResourceId
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalE79B951D:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          - RootResourceId
+      PathPart: external
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalOPTIONS5D996F68:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalE79B951D
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalE79B951D
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyOPTIONS7326C8C9:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyANYApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYexternalproxy249C480B:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /*/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/ANY/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyANYApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYexternalproxy51A515F9:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/*/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/ANY/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyANY4888929D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoApiExampleStack2apiCognitoAuthorizer9DC764A3
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/ANY/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyGETApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETexternalproxy76CA2E8D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /GET/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/GET/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyGETApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETexternalproxy900F45E2:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/GET/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/GET/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyGETA3EB8EAF:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoApiExampleStack2apiCognitoAuthorizer9DC764A3
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/GET/Resource
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyPOSTApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTexternalproxy6B4F9796:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /POST/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/POST/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyPOSTApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTexternalproxyD5D16E51:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/POST/external/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/POST/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..external.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiexternalproxyPOST5D24D09B:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiexternalproxyDD5EBB70
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: COGNITO_USER_POOLS
+      AuthorizerId:
+        Ref: CognitoApiExampleStack2apiCognitoAuthorizer9DC764A3
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/external/{proxy+}/POST/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternal1D86EF1B:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          - RootResourceId
+      PathPart: internal
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalOPTIONSA3EC68EA:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternal1D86EF1B
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternal1D86EF1B
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyOPTIONS68680FC3:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyANYApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYinternalproxy2914DEA0:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /*/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/ANY/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyANYApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYinternalproxy26AD5933:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/*/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/ANY/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyANY0180CB64:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/ANY/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyGETApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETinternalproxy3B7A40CC:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /GET/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/GET/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyGETApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETinternalproxyE05D4C2B:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/GET/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/GET/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyGET76C9403F:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/GET/Resource
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyPOSTApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTinternalproxy566099E5:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /POST/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/POST/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyPOSTApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTinternalproxy35A4E976:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/POST/internal/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/POST/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..internal.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiinternalproxyPOST328756CF:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/internal/{proxy+}/POST/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedAE531C1A:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          - RootResourceId
+      PathPart: unprotetected
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedOPTIONSC38A14AC:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedAE531C1A
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedAE531C1A
+      PathPart: "{proxy+}"
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyOPTIONS284D4A3C:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: OPTIONS
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationResponses:
+          - ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'*'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+              method.response.header.Access-Control-Allow-Methods: "'*'"
+            StatusCode: "204"
+        RequestTemplates:
+          application/json: "{ statusCode: 200 }"
+        Type: MOCK
+      MethodResponses:
+        - ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Origin: true
+            method.response.header.Access-Control-Allow-Methods: true
+          StatusCode: "204"
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/OPTIONS/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyANYApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYunprotetectedproxyE1EC6739:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /*/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/ANY/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyANYApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CANYunprotetectedproxy2480F2B9:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/*/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/ANY/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.ANY..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyANY08CB11DF:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: ANY
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/ANY/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyGETApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETunprotetectedproxy49FE5C8D:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /GET/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/GET/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyGETApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CGETunprotetectedproxyDD04A679:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/GET/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/GET/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.GET..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyGET800E9B2D:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: GET
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/GET/Resource
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyPOSTApiPermissionCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTunprotetectedproxy134AFDE1:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /
+            - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+            - /POST/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/POST/ApiPermission.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyPOSTApiPermissionTestCognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817CPOSTunprotetectedproxyAAA5F9C9:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+          - Arn
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Join:
+          - ""
+          - - "arn:"
+            - Ref: AWS::Partition
+            - ":execute-api:"
+            - Ref: AWS::Region
+            - ":"
+            - Ref: AWS::AccountId
+            - ":"
+            - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+            - /test-invoke-stage/POST/unprotetected/*
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/POST/ApiPermission.Test.CognitoApiExampleStack2CognitoApiExampleStack2apiLambdaRestApi6DD2817C.POST..unprotetected.{proxy+}
+  CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyPOSTCD310A21:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      HttpMethod: POST
+      ResourceId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApiunprotetectedproxyD9123CEC
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      AuthorizationType: NONE
+      Integration:
+        IntegrationHttpMethod: POST
+        Type: AWS_PROXY
+        Uri:
+          Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - ":apigateway:"
+              - Ref: AWS::Region
+              - :lambda:path/2015-03-31/functions/
+              - Fn::GetAtt:
+                  - CognitoApiExampleStack2apiLambdaFunction2BE62E27
+                  - Arn
+              - /invocations
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Default/unprotetected/{proxy+}/POST/Resource
+  CognitoApiExampleStack2apiLambdaRestApiUsagePlan90CA299C:
+    Type: AWS::ApiGateway::UsagePlan
+    Properties:
+      ApiStages:
+        - ApiId:
+            Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          Stage:
+            Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+          Throttle: {}
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/UsagePlan/Resource
+  CognitoApiExampleStack2apiLambdaRestApiCloudWatchRole6C801089:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: apigateway.amazonaws.com
+        Version: "2012-10-17"
+      Policies:
+        - PolicyDocument:
+            Statement:
+              - Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:DescribeLogGroups
+                  - logs:DescribeLogStreams
+                  - logs:PutLogEvents
+                  - logs:GetLogEvents
+                  - logs:FilterLogEvents
+                Effect: Allow
+                Resource:
+                  Fn::Join:
+                    - ""
+                    - - "arn:"
+                      - Ref: AWS::Partition
+                      - ":logs:"
+                      - Ref: AWS::Region
+                      - ":"
+                      - Ref: AWS::AccountId
+                      - :*
+            Version: "2012-10-17"
+          PolicyName: LambdaRestApiCloudWatchRolePolicy
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApiCloudWatchRole/Resource
+  CognitoApiExampleStack2apiLambdaRestApiAccount9C18380C:
+    Type: AWS::ApiGateway::Account
+    Properties:
+      CloudWatchRoleArn:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apiLambdaRestApiCloudWatchRole6C801089
+          - Arn
+    DependsOn:
+      - CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApiAccount
+  CognitoApiExampleStack2apiCognitoUserPoolDA916FC2:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_phone_number
+            Priority: 1
+          - Name: verified_email
+            Priority: 2
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      EmailVerificationMessage: The verification code to your new account is {####}
+      EmailVerificationSubject: Verify your new account
+      SmsVerificationMessage: The verification code to your new account is {####}
+      UserPoolAddOns:
+        AdvancedSecurityMode: ENFORCED
+      UserPoolName: CognitoApiExampleStack2-user-pool
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+        EmailMessage: The verification code to your new account is {####}
+        EmailSubject: Verify your new account
+        SmsMessage: The verification code to your new account is {####}
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/CognitoUserPool/Resource
+  CognitoApiExampleStack2apiCognitoUserPoolClient9DCFA56F:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId:
+        Ref: CognitoApiExampleStack2apiCognitoUserPoolDA916FC2
+      AllowedOAuthFlows:
+        - implicit
+        - code
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthScopes:
+        - profile
+        - phone
+        - email
+        - openid
+        - aws.cognito.signin.user.admin
+      CallbackURLs:
+        - https://example.com
+      SupportedIdentityProviders:
+        - COGNITO
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/CognitoUserPoolClient/Resource
+  CognitoApiExampleStack2apiCognitoAuthorizer9DC764A3:
+    Type: AWS::ApiGateway::Authorizer
+    Properties:
+      RestApiId:
+        Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+      Type: COGNITO_USER_POOLS
+      IdentitySource: method.request.header.Authorization
+      Name: authorizer
+      ProviderARNs:
+        - Fn::GetAtt:
+            - CognitoApiExampleStack2apiCognitoUserPoolDA916FC2
+            - Arn
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/CognitoAuthorizer
+  CognitoApiExampleStack2apicallerServiceRole48D3D2A6:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Action: sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+        Version: "2012-10-17"
+      ManagedPolicyArns:
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api-caller/ServiceRole/Resource
+  CognitoApiExampleStack2apicallerB5A62F1C:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket:
+          Ref: AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6S3Bucket81D26AB4
+        S3Key:
+          Fn::Join:
+            - ""
+            - - Fn::Select:
+                  - 0
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6S3VersionKey044852C8
+              - Fn::Select:
+                  - 1
+                  - Fn::Split:
+                      - "||"
+                      - Ref: AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6S3VersionKey044852C8
+      Handler: index.handler
+      Role:
+        Fn::GetAtt:
+          - CognitoApiExampleStack2apicallerServiceRole48D3D2A6
+          - Arn
+      Runtime: nodejs12.x
+      FunctionName: CognitoApiExampleStack2-api-caller
+    DependsOn:
+      - CognitoApiExampleStack2apicallerServiceRole48D3D2A6
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api-caller/Resource
+      aws:asset:path: /Users/sive/Documents/Playground/Serverless/cognito-api-example/cognito-api-example/lambda/api-caller
+      aws:asset:property: Code
+  CDKMetadata:
+    Type: AWS::CDK::Metadata
+    Properties:
+      Modules: aws-cdk=1.75.0,@aws-cdk/assets=1.75.0,@aws-cdk/aws-apigateway=1.75.0,@aws-cdk/aws-applicationautoscaling=1.75.0,@aws-cdk/aws-autoscaling-common=1.75.0,@aws-cdk/aws-certificatemanager=1.75.0,@aws-cdk/aws-cloudfront=1.75.0,@aws-cdk/aws-cloudfront-origins=1.75.0,@aws-cdk/aws-cloudwatch=1.75.0,@aws-cdk/aws-codeguruprofiler=1.75.0,@aws-cdk/aws-cognito=1.75.0,@aws-cdk/aws-dynamodb=1.75.0,@aws-cdk/aws-ec2=1.75.0,@aws-cdk/aws-elasticsearch=1.75.0,@aws-cdk/aws-events=1.75.0,@aws-cdk/aws-iam=1.75.0,@aws-cdk/aws-kinesis=1.75.0,@aws-cdk/aws-kinesisanalytics=1.75.0,@aws-cdk/aws-kms=1.75.0,@aws-cdk/aws-lambda=1.75.0,@aws-cdk/aws-lambda-event-sources=1.75.0,@aws-cdk/aws-logs=1.75.0,@aws-cdk/aws-s3=1.75.0,@aws-cdk/aws-s3-assets=1.75.0,@aws-cdk/aws-s3-notifications=1.75.0,@aws-cdk/aws-sagemaker=1.75.0,@aws-cdk/aws-sam=1.75.0,@aws-cdk/aws-secretsmanager=1.75.0,@aws-cdk/aws-sns=1.75.0,@aws-cdk/aws-sns-subscriptions=1.75.0,@aws-cdk/aws-sqs=1.75.0,@aws-cdk/aws-ssm=1.75.0,@aws-cdk/aws-stepfunctions=1.75.0,@aws-cdk/cloud-assembly-schema=1.75.0,@aws-cdk/core=1.75.0,@aws-cdk/custom-resources=1.75.0,@aws-cdk/cx-api=1.75.0,@aws-cdk/region-info=1.75.0,@aws-solutions-constructs/core=1.75.0,jsii-runtime=node.js/v14.14.0
+    Metadata:
+      aws:cdk:path: CognitoApiExampleStack2/CDKMetadata/Default
+    Condition: CDKMetadataAvailable
+Outputs:
+  CognitoApiExampleStack2apiLambdaRestApiEndpointC41AB58D:
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
+          - .execute-api.
+          - Ref: AWS::Region
+          - "."
+          - Ref: AWS::URLSuffix
+          - /
+          - Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentStagedevF1A8A145
+          - /
+Parameters:
+  AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fS3Bucket6A1C6049:
+    Type: String
+    Description: S3 bucket for asset "b28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306f"
+  AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fS3VersionKeyBE65CC71:
+    Type: String
+    Description: S3 key for asset version "b28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306f"
+  AssetParametersb28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306fArtifactHash42CED104:
+    Type: String
+    Description: Artifact hash for asset "b28bba683e939b09c8e8a5fb74586887b81dcdddfad1ed4d158110424668306f"
+  AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6S3Bucket81D26AB4:
+    Type: String
+    Description: S3 bucket for asset "9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6"
+  AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6S3VersionKey044852C8:
+    Type: String
+    Description: S3 key for asset version "9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6"
+  AssetParameters9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6ArtifactHash7522AB68:
+    Type: String
+    Description: Artifact hash for asset "9b363e8a2a7fb2292d036c7365fd7c938cd02905ab3821f82c35f626507103c6"
+Conditions:
+  CDKMetadataAvailable:
+    Fn::Or:
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-northeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ap-southeast-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - ca-central-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - cn-northwest-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-central-1
+      - Fn::Or:
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-north-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - eu-west-3
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - me-south-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - sa-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-east-2
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-1
+          - Fn::Equals:
+              - Ref: AWS::Region
+              - us-west-2
+
