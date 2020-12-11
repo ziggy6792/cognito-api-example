@@ -20,9 +20,9 @@ import * as defaults from '@aws-solutions-constructs/core';
 import { Construct } from '@aws-cdk/core';
 
 /**
- * @summary The properties for the CognitoToApiGatewayToLambda Construct
+ * @summary The properties for the MultiAuthApiGatewayLambda Construct
  */
-export interface CognitoToApiGatewayToLambdaProps {
+export interface MultiAuthApiGatewayLambdaProps {
   /**
    * Existing instance of Lambda Function object, if this is set then the lambdaFunctionProps is ignored.
    *
@@ -61,7 +61,7 @@ enum RESOURCE_TYPE {
   'UNPROTECTED' = 'unprotetected',
 }
 
-export class CognitoToApiGatewayToLambda extends Construct {
+export class MultiAuthApiGatewayLambda extends Construct {
   public readonly userPool: cognito.UserPool;
   public readonly userPoolClient: cognito.UserPoolClient;
   public readonly apiGateway: api.RestApi;
@@ -75,35 +75,15 @@ export class CognitoToApiGatewayToLambda extends Construct {
   public readonly unprotectedResource: api.Resource;
 
   /**
-   * @summary Constructs a new instance of the CognitoToApiGatewayToLambda class.
+   * @summary Constructs a new instance of the MultiAuthApiGatewayLambda class.
    * @param {cdk.App} scope - represents the scope for all the resources.
    * @param {string} id - this is a a scope-unique id.
-   * @param {CognitoToApiGatewayToLambdaProps} props - user provided props for the construct
+   * @param {MultiAuthApiGatewayLambdaProps} props - user provided props for the construct
    * @since 0.8.0
    * @access public
    */
-  constructor(scope: Construct, id: string, props: CognitoToApiGatewayToLambdaProps) {
+  constructor(scope: Construct, id: string, props: MultiAuthApiGatewayLambdaProps) {
     super(scope, id);
-
-    // This Construct requires that the auth type be COGNITO regardless of what is specified in the props
-    if (props.apiGatewayProps) {
-      if (props.apiGatewayProps.defaultMethodOptions === undefined) {
-        props.apiGatewayProps.defaultMethodOptions = {
-          authorizationType: api.AuthorizationType.NONE,
-        };
-      } else if (props.apiGatewayProps?.defaultMethodOptions.authorizationType === undefined) {
-        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.NONE;
-      } else if (props.apiGatewayProps?.defaultMethodOptions.authorizationType !== api.AuthorizationType.NONE) {
-        defaults.printWarning('Overriding Authorization type to be AuthorizationType.NONE');
-        props.apiGatewayProps.defaultMethodOptions.authorizationType = api.AuthorizationType.NONE;
-      }
-    }
-
-    // if (props.apiGatewayProps && typeof props.apiGatewayProps.proxy !== 'undefined' && props.apiGatewayProps.proxy === false) {
-    //   defaults.printWarning(
-    //     'For non-proxy API, addAuthorizers() method must be called after all the resources and methods for API are fuly defined. Not calling addAuthorizers() will result in API methods NOT protected by Cognito.'
-    //   );
-    // }
 
     this.lambdaFunction = defaults.buildLambdaFunction(this, {
       existingLambdaObj: props.existingLambdaObj,
@@ -115,10 +95,10 @@ export class CognitoToApiGatewayToLambda extends Construct {
 
     this.apiGatewayAuthorizer = new api.CfnAuthorizer(this, 'CognitoAuthorizer', {
       restApiId: this.apiGateway.restApiId,
-      type: 'COGNITO_USER_POOLS',
+      type: api.AuthorizationType.COGNITO,
       providerArns: [this.userPool.userPoolArn],
       identitySource: 'method.request.header.Authorization',
-      name: 'authorizer',
+      name: 'cognito-authorizer',
     });
 
     this.externalResource = this.apiGateway.root.addResource(RESOURCE_TYPE.EXTERNAL);
@@ -140,7 +120,7 @@ export class CognitoToApiGatewayToLambda extends Construct {
 
   private addNoAuthorizer(apiMethod: api.Method) {
     const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
-    child.addPropertyOverride('AuthorizationType', 'NONE');
+    child.addPropertyOverride('AuthorizationType', api.AuthorizationType.NONE);
   }
 
   private addCognitoAuthorizer(apiMethod: api.Method) {
@@ -165,4 +145,4 @@ export class CognitoToApiGatewayToLambda extends Construct {
   }
 }
 
-export default CognitoToApiGatewayToLambda;
+export default MultiAuthApiGatewayLambda;

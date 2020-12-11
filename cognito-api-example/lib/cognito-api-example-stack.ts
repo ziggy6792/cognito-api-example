@@ -1,8 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
-import addCorsOptions from './add-cors-options';
-import * as apigw from '@aws-cdk/aws-apigateway';
-import CognitoToApiGatewayToLambda from '../constructs/aws-cognito-apigateway-lambda';
+import MultiAuthApiGatewayLambda from '../constructs/multi-auth-apigateway-lambda';
+import * as iam from '@aws-cdk/aws-iam';
 
 export class CognitoApiExampleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -12,7 +11,7 @@ export class CognitoApiExampleStack extends cdk.Stack {
       return `${id}-${constructId}`;
     };
 
-    const construct = new CognitoToApiGatewayToLambda(this, generateConstructId('api'), {
+    const construct = new MultiAuthApiGatewayLambda(this, generateConstructId('api'), {
       lambdaFunctionProps: {
         code: lambda.Code.fromAsset('lambda/api-resolver'),
         functionName: generateConstructId('api-resolver'),
@@ -36,14 +35,6 @@ export class CognitoApiExampleStack extends cdk.Stack {
       },
     });
 
-    const apiCallerHandler = new lambda.Function(this, generateConstructId('api-caller'), {
-      code: lambda.Code.fromAsset('lambda/api-caller'),
-      functionName: generateConstructId('api-caller'),
-
-      handler: 'index.handler',
-      runtime: lambda.Runtime.NODEJS_12_X,
-    });
-
     const externalProxy = construct.externalResource.addProxy();
     externalProxy.addMethod('GET');
     externalProxy.addMethod('POST');
@@ -55,6 +46,16 @@ export class CognitoApiExampleStack extends cdk.Stack {
     const unprotectedProxy = construct.unprotectedResource.addProxy();
     unprotectedProxy.addMethod('GET');
     unprotectedProxy.addMethod('POST');
+
+    const apiCallerHandler = new lambda.Function(this, generateConstructId('api-caller'), {
+      code: lambda.Code.fromAsset('lambda/api-caller'),
+      functionName: generateConstructId('api-caller'),
+      description: generateConstructId('api-caller'),
+      handler: 'index.handler',
+      runtime: lambda.Runtime.NODEJS_12_X,
+    });
+
+    apiCallerHandler!.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonAPIGatewayInvokeFullAccess'));
 
     construct.addAuthorizers();
   }

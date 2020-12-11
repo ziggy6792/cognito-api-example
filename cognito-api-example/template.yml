@@ -106,7 +106,7 @@ Resources:
       Name: CognitoApiExampleStack2-api
     Metadata:
       aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api/LambdaRestApi/Resource
-  CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD194b6fa69db3ae6c96dc961993cce9fe0b:
+  CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD1910aaac5d67aea27394966fa12dfb7604:
     Type: AWS::ApiGateway::Deployment
     Properties:
       RestApiId:
@@ -152,7 +152,7 @@ Resources:
             - Arn
         Format: '{"requestId":"$context.requestId","ip":"$context.identity.sourceIp","user":"$context.identity.user","caller":"$context.identity.caller","requestTime":"$context.requestTime","httpMethod":"$context.httpMethod","resourcePath":"$context.resourcePath","status":"$context.status","protocol":"$context.protocol","responseLength":"$context.responseLength"}'
       DeploymentId:
-        Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD194b6fa69db3ae6c96dc961993cce9fe0b
+        Ref: CognitoApiExampleStack2apiLambdaRestApiDeploymentDDF8FD1910aaac5d67aea27394966fa12dfb7604
       MethodSettings:
         - DataTraceEnabled: true
           HttpMethod: "*"
@@ -627,7 +627,7 @@ Resources:
         Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
       RestApiId:
         Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
-      AuthorizationType: NONE
+      AuthorizationType: AWS_IAM
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -701,7 +701,7 @@ Resources:
         Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
       RestApiId:
         Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
-      AuthorizationType: NONE
+      AuthorizationType: AWS_IAM
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -775,7 +775,7 @@ Resources:
         Ref: CognitoApiExampleStack2apiLambdaRestApiinternalproxy37E9E67B
       RestApiId:
         Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
-      AuthorizationType: NONE
+      AuthorizationType: AWS_IAM
       Integration:
         IntegrationHttpMethod: POST
         Type: AWS_PROXY
@@ -1201,7 +1201,7 @@ Resources:
         Ref: CognitoApiExampleStack2apiLambdaRestApi3E0E7B94
       Type: COGNITO_USER_POOLS
       IdentitySource: method.request.header.Authorization
-      Name: authorizer
+      Name: cognito-authorizer
       ProviderARNs:
         - Fn::GetAtt:
             - CognitoApiExampleStack2apiCognitoUserPoolDA916FC2
@@ -1224,6 +1224,11 @@ Resources:
             - - "arn:"
               - Ref: AWS::Partition
               - :iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+        - Fn::Join:
+            - ""
+            - - "arn:"
+              - Ref: AWS::Partition
+              - :iam::aws:policy/AmazonAPIGatewayInvokeFullAccess
     Metadata:
       aws:cdk:path: CognitoApiExampleStack2/CognitoApiExampleStack2-api-caller/ServiceRole/Resource
   CognitoApiExampleStack2apicallerB5A62F1C:
@@ -1251,6 +1256,7 @@ Resources:
           - CognitoApiExampleStack2apicallerServiceRole48D3D2A6
           - Arn
       Runtime: nodejs12.x
+      Description: CognitoApiExampleStack2-api-caller
       FunctionName: CognitoApiExampleStack2-api-caller
     DependsOn:
       - CognitoApiExampleStack2apicallerServiceRole48D3D2A6
