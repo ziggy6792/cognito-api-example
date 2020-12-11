@@ -191,30 +191,13 @@ export class CognitoToApiGatewayToLambda extends Construct {
 
       if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
         this.addCognitoAuthorizer(apiMethod);
+      } else if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.INERNAL}`)) {
+        this.addIamAuthorizer(apiMethod);
       } else {
         this.addNoAuthorizer(apiMethod);
       }
-
-      // if (apiMethod.httpMethod === 'OPTIONS') {
-      //   child.addPropertyOverride('AuthorizationType', 'NONE');
-      // } else if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
-      // }
     });
   }
-
-  // public addAuthorizers() {
-  //   this.apiGateway.methods.forEach((apiMethod) => {
-  //     // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
-  //     if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.EXTERNAL}`)) {
-  //       defaults.printWarning('add cognito ' + apiMethod.resource.path);
-
-  //       this.addCognitoAuthorizer(apiMethod);
-  //     } else if (apiMethod.resource.path.startsWith(`/${RESOURCE_TYPE.INERNAL}`)) {
-  //       defaults.printWarning('add iam ' + apiMethod.resource.path);
-  //       // this.addIamAuthorizer(apiMethod);
-  //     }
-  //   });
-  // }
 
   private addNoAuthorizer(apiMethod: api.Method) {
     const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
@@ -232,18 +215,13 @@ export class CognitoToApiGatewayToLambda extends Construct {
     }
   }
 
-  // private addNoAuthorizer(apiMethod: api.Method) {
-  //   // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
-  //   const child = apiMethod.resource.node.findChild('Resource') as api.CfnMethod;
-  //   child.addPropertyOverride('AuthorizationType', 'NONE');
-  // }
-
   private addIamAuthorizer(apiMethod: api.Method) {
-    const child = apiMethod.resource.node.findChild('Resource') as api.CfnMethod;
+    // Leave the authorizer NONE for HTTP OPTIONS method to support CORS, for the rest set it to COGNITO
+    const child = apiMethod.node.findChild('Resource') as api.CfnMethod;
     if (apiMethod.httpMethod === 'OPTIONS') {
-      child.addPropertyOverride('AuthorizationType', 'NONE');
+      child.addPropertyOverride('AuthorizationType', api.AuthorizationType.NONE);
     } else {
-      child.addPropertyOverride('AuthorizationType', 'AWS_IAM');
+      child.addPropertyOverride('AuthorizationType', api.AuthorizationType.IAM);
     }
   }
 }
