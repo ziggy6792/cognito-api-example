@@ -7,12 +7,13 @@ import * as defaults from '@aws-solutions-constructs/core';
 export class CognitoApiExampleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    const REGION = 'ap-southeast-1';
 
     const generateConstructId = (constructId: string): string => {
       return `${id}-${constructId}`;
     };
 
-    const construct = new MultiAuthApiGatewayLambda(this, generateConstructId('api'), {
+    const apiConstruct = new MultiAuthApiGatewayLambda(this, generateConstructId('api'), {
       lambdaFunctionProps: {
         code: lambda.Code.fromAsset('lambda/api-resolver'),
         functionName: generateConstructId('api-resolver'),
@@ -72,34 +73,35 @@ export class CognitoApiExampleStack extends cdk.Stack {
     //   },
     // });
 
-    // const client = construct.userPool.addClient('stackoverflow-userpool-localhost-client', {
-    //   userPoolClientName: 'stackoverflow-localhost-client',
-    //   oAuth: {
-    //     flows: { authorizationCodeGrant: true, implicitCodeGrant: true },
-    //     scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PHONE, cognito.OAuthScope.COGNITO_ADMIN],
-    //     callbackUrls: ['http://localhost:3000/'],
-    //     logoutUrls: ['http://localhost:3000/'],
-    //   },
-    //   // supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.AMAZON, cognito.UserPoolClientIdentityProvider.COGNITO],
-    // });
+    const client = apiConstruct.userPool.addClient(generateConstructId('client'), {
+      userPoolClientName: generateConstructId('client'),
+      oAuth: {
+        flows: { authorizationCodeGrant: true, implicitCodeGrant: true },
+        scopes: [cognito.OAuthScope.OPENID, cognito.OAuthScope.EMAIL, cognito.OAuthScope.PHONE, cognito.OAuthScope.COGNITO_ADMIN],
+        callbackUrls: ['http://localhost:3000/'],
+        logoutUrls: ['http://localhost:3000/'],
+      },
+      // supportedIdentityProviders: [cognito.UserPoolClientIdentityProvider.AMAZON, cognito.UserPoolClientIdentityProvider.COGNITO],
+    });
+    const domainPrefix = apiConstruct.apiGateway.restApiId;
 
-    construct.userPool.addDomain('CognitoDomain', {
+    apiConstruct.userPool.addDomain('CognitoDomain', {
       cognitoDomain: {
-        domainPrefix: construct.apiGateway.restApiId,
+        domainPrefix,
       },
     });
 
     // defaults.printWarning(construct.apiGateway.restApiId);
 
-    const externalProxy = construct.externalResource.addProxy();
+    const externalProxy = apiConstruct.externalResource.addProxy();
     externalProxy.addMethod('GET');
     externalProxy.addMethod('POST');
 
-    const internalProxy = construct.internalResource.addProxy();
+    const internalProxy = apiConstruct.internalResource.addProxy();
     internalProxy.addMethod('GET');
     internalProxy.addMethod('POST');
 
-    const unprotectedProxy = construct.unprotectedResource.addProxy();
+    const unprotectedProxy = apiConstruct.unprotectedResource.addProxy();
     unprotectedProxy.addMethod('GET');
     unprotectedProxy.addMethod('POST');
 
@@ -113,6 +115,30 @@ export class CognitoApiExampleStack extends cdk.Stack {
 
     apiCallerHandler!.role!.addManagedPolicy(iam.ManagedPolicy.fromAwsManagedPolicyName('AmazonAPIGatewayInvokeFullAccess'));
 
-    construct.addAuthorizers();
+    apiConstruct.addAuthorizers();
+
+    const removeTralingSlash = (url: string) => url.replace(/\/$/, '');
+
+    const clientConfig = {
+      apiGateway: {
+        REGION: REGION,
+        URL: `${removeTralingSlash(apiConstruct.apiGateway.url)}${removeTralingSlash(apiConstruct.externalResource.path)}`,
+      },
+      cognito: {
+        REGION: REGION,
+        USER_POOL_ID: apiConstruct.userPool.userPoolId,
+        APP_CLIENT_ID: client.userPoolClientId,
+        DOMAIN: ` ${domainPrefix}.auth.ap-southeast-1.amazoncognito.com`,
+        SCOPE: ['email', 'openid'],
+        REDIRECT_SIGN_IN: 'http://localhost:3000/',
+        REDIRECT_SIGN_OUT: 'http://localhost:3000/',
+        RESPONSE_TYPE: 'code',
+      },
+    };
+
+    const clientConfigOutput = new cdk.CfnOutput(this, 'client-config', {
+      description: 'client-config',
+      value: JSON.stringify(clientConfig),
+    });
   }
 }
