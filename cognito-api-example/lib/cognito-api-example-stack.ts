@@ -1,8 +1,8 @@
 import * as cdk from '@aws-cdk/core';
 import * as lambda from '@aws-cdk/aws-lambda';
-import { CognitoToApiGatewayToLambda } from '@aws-solutions-constructs/aws-cognito-apigateway-lambda';
 import addCorsOptions from './add-cors-options';
 import * as apigw from '@aws-cdk/aws-apigateway';
+import CognitoToApiGatewayToLambda from '../constructs/aws-cognito-apigateway-lambda';
 
 export class CognitoApiExampleStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
@@ -21,12 +21,18 @@ export class CognitoApiExampleStack extends cdk.Stack {
         handler: 'index.handler',
       },
       apiGatewayProps: {
+        restApiName: generateConstructId('api'),
+        description: generateConstructId('api'),
         proxy: false,
+        deployOptions: { stageName: 'dev' },
         defaultCorsPreflightOptions: {
           allowOrigins: ['*'],
           allowHeaders: ['*'],
           allowMethods: ['*'],
         },
+      },
+      cognitoUserPoolProps: {
+        userPoolName: generateConstructId('user-pool'),
       },
     });
 
@@ -38,37 +44,17 @@ export class CognitoApiExampleStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_12_X,
     });
 
-    // const stageDeployment = { id: generateConstructId('deployment'), description: generateConstructId('deployment') };
-
-    // const deployment = new apigw.Deployment(this, stageDeployment.id, { api: construct.apiGateway, description: stageDeployment.description });
-
-    // const deployedStage = new apigw.Stage(this, generateConstructId('stage-dev'), {
-    //   deployment,
-    //   stageName: 'dev',
-    //   description: generateConstructId('stage-dev'),
-    // });
-
-    // construct.apiGateway.latestDeployment.
-
-    const external = construct.apiGateway.root.addResource('external');
-
-    const externalProxy = external.addProxy();
+    const externalProxy = construct.externalResource.addProxy();
     externalProxy.addMethod('GET');
     externalProxy.addMethod('POST');
-    // addCorsOptions(externalProxy);
 
-    const internal = construct.apiGateway.root.addResource('internal');
-    const internalProxy = internal.addProxy();
+    const internalProxy = construct.internalResource.addProxy();
     internalProxy.addMethod('GET');
     internalProxy.addMethod('POST');
 
-    const unprotected = construct.apiGateway.root.addResource('unprotected');
-    const unprotectedProxy = unprotected.addProxy();
+    const unprotectedProxy = construct.unprotectedResource.addProxy();
     unprotectedProxy.addMethod('GET');
     unprotectedProxy.addMethod('POST');
-    // addCorsOptions(internaProxy);
-
-    // construct.apiGateway.
 
     construct.addAuthorizers();
   }
