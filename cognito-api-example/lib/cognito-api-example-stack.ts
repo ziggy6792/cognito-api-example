@@ -62,17 +62,6 @@ export class CognitoApiExampleStack extends cdk.Stack {
       },
     });
 
-    // const cognitoDomain = construct.userPool.addDomain(generateConstructId('api'),{})
-
-    // const userPoolDomain = new cognito.UserPoolDomain(this, 'UserPoolDomain', {
-    //   userPool: construct.userPool,
-    //   customDomain: {
-    //     domainName: construct.apiGateway.restApiId,
-    //     cognitoDomain,
-    //     // certificate,
-    //   },
-    // });
-
     const client = apiConstruct.userPool.addClient(generateConstructId('client'), {
       userPoolClientName: generateConstructId('client'),
       oAuth: {
