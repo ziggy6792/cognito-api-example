@@ -2,6 +2,7 @@ import AWS = require('aws-sdk');
 import * as serverless from 'aws-serverless-express';
 import Express from 'express';
 import * as util from 'util';
+import cors from 'cors';
 
 // const createResponse = (body: string | AWS.DynamoDB.DocumentClient.ItemList, statusCode = 200) => {
 //   return {
@@ -18,7 +19,7 @@ const app = Express();
 const helloHandler = async function (req: any, res: any) {
   console.log('Recieved', util.inspect(req));
 
-  res.header('Access-Control-Allow-Origin', '*');
+  // res.header('Access-Control-Allow-Origin', '*');
   res.send(JSON.stringify({ message: 'Authenticated call!' }));
   // return {
   //   statusCode: 200,
@@ -28,6 +29,16 @@ const helloHandler = async function (req: any, res: any) {
   //   body: JSON.stringify({ message: 'Authenticated call!' }),
   // };
 };
+
+// app.use((req, res, next) => {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   res.header('Access-Control-Allow-Methods', '*');
+//   res.header('Access-Control-Allow-Headers', '*');
+//   next();
+// });
+
+app.use(cors());
+// app.use(cors());
 
 app.get('/unprotected/hello', helloHandler);
 app.get('/internal/hello', helloHandler);
